@@ -40,38 +40,58 @@
             });
         }
 
+        $(document).ready(() => {
+            $('.keyboard .key[data-key]').on("click", (e) => {
+                var key = $(e.target).data("key");
+                if (key == "ENTER") {
+                    enter();
+                } else if (key == "DELETE") {
+                    erase();
+                } else {
+                    newLetter(key);
+                }
+                render();
+            });
+        });
+        function newLetter(letter) {
+            if (letters.length < 5) {
+                letters.push(letter.toUpperCase());
+            }
+        }
+        function erase() {
+            letters.pop();
+        }
+        function enter() {
+            tries.push(
+                {
+                    "letters": letters,
+                    "results": wordle.checkWord(letters.join("").toLowerCase()).split("")
+                }
+            );
+            wordle.checkWord(letters.join("").toLowerCase()).split("").forEach((result, index) => {
+                if (result == "X" && keys[letters[index].toLowerCase()] == "-") {
+                    keys[letters[index].toLowerCase()] = result;
+                } else if (result == "W" && ["-", "X"].includes(keys[letters[index].toLowerCase()])) {
+                    keys[letters[index].toLowerCase()] = result;
+                } else if (result == "O") {
+                    keys[letters[index].toLowerCase()] = result;
+                }
+            });
+            drawKeys();
+            drawTries();
+            letters = [];
+        }
         $(document).keydown(event => {
             var charCode = event.keyCode;
-
             if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123)) {
-                if (letters.length < 5) {
-                    letters.push(event.key.toUpperCase())
-                }
+                newLetter(event.key.toUpperCase());
             }
             if (charCode == 8) {
-                letters.pop();
+                erase()
             }
             if (charCode == 13) {
-                tries.push(
-                    {
-                        "letters": letters,
-                        "results": wordle.checkWord(letters.join("").toLowerCase()).split("")
-                    }
-                );
-                wordle.checkWord(letters.join("").toLowerCase()).split("").forEach((result, index) => {
-                    if (result == "X" && keys[letters[index].toLowerCase()] == "-") {
-                        keys[letters[index].toLowerCase()] = result;
-                    } else if (result == "W" && ["-", "X"].includes(keys[letters[index].toLowerCase()])) {
-                        keys[letters[index].toLowerCase()] = result;
-                    } else if (result == "O") {
-                        keys[letters[index].toLowerCase()] = result;
-                    }
-                });
-                drawKeys();
-                drawTries();
-                letters = [];
+                enter();
             }
-
             render();
         })
     </script>
@@ -120,16 +140,16 @@
             background: #52BE80;
         }
         .flex.column.tiles {
-            gap: 10px;
+            gap: .5em;
         }
         .flex.column.tiles > .flex {
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: .5em;
         }
         .keyboard > .flex {
             justify-content: center;
-            gap: 10px;
+            gap: .5em;
         }
 
         .key {
@@ -139,14 +159,14 @@
             padding: .5em;
             background: lightgray;
             color: black;
-            font-size: 20px;
+            font-size: 1em;
             border-radius: 5px;
             text-transform: capitalize;
             align-items: center;
         }
 
         .flex.column.keyboard {
-            gap: 10px;
+            gap: .5em;
             margin-top: 20px;
         }
     </style>
@@ -223,7 +243,7 @@
                 <div class="key" data-key="ñ">ñ</div>
             </div>
             <div class="flex">
-                <div class="key" data-key="delete">ENTER</div>
+                <div class="key" data-key="ENTER">ENTER</div>
                 <div class="key" data-key="z">z</div>
                 <div class="key" data-key="x">x</div>
                 <div class="key" data-key="c">c</div>
@@ -231,7 +251,7 @@
                 <div class="key" data-key="b">b</div>
                 <div class="key" data-key="n">n</div>
                 <div class="key" data-key="m">m</div>
-                <div class="key" data-key="delete"><i class="fa fa-delete-left"></i></div>
+                <div class="key" data-key="DELETE"><i class="fa fa-delete-left"></i></div>
             </div>
         </div>
     </div>
