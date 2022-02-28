@@ -41,8 +41,8 @@
         }
 
         $(document).ready(() => {
-            $('.keyboard .key[data-key]').on("click", (e) => {
-                var key = $(e.target).data("key");
+            $('.keyboard .key[data-key]').click((e) => {
+                var key = $(e.currentTarget).data("key");
                 if (key == "ENTER") {
                     enter();
                 } else if (key == "DELETE") {
@@ -80,6 +80,9 @@
             drawKeys();
             drawTries();
             letters = [];
+            if (tries.length == 6 && wordle.checkWord(letters.join("").toLowerCase()) != "OOOOO") {
+                alert(`La palabra secreta era: ${wordle.getWord()}`)
+            }
         }
         $(document).keydown(event => {
             var charCode = event.keyCode;
@@ -251,7 +254,7 @@
                 <div class="key" data-key="b">b</div>
                 <div class="key" data-key="n">n</div>
                 <div class="key" data-key="m">m</div>
-                <div class="key" data-key="DELETE"><i class="fa fa-delete-left"></i></div>
+                <div class="key" data-key="DELETE"><i class="fa fa-delete-left" aria-hidden="true"></i></div>
             </div>
         </div>
     </div>

@@ -24,7 +24,7 @@ var Wordle = /** @class */ (function () {
         });
         wordInArray.forEach(function (element, index) {
             // DESPUES BUSCAMOS COINCIDENCIAS NO EXACTAS
-            if (wordArray.indexOf(element) > -1) {
+            if (wordArray.indexOf(element) > -1 && matches[index] != "O") {
                 matches[index] = "W";
                 wordArray[_this.word.indexOf(element)] = "_";
             }
