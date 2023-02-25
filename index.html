@@ -118,22 +118,16 @@
     <style>
         html {
             font-family: 'Open Sans', sans-serif;
+            height: 100%;
         }
         body {
             margin: 0;
-        }
-        @media (min-width: 1000px) {
-            .container{
-                width: 1000px;
-            }
-            .modal {
-                max-width: 70vw;
-            }
+            height: 100%;
         }
         .container{
-            height: calc(100vh - 6em);
+            height: calc(100% - 6em);
             margin: auto;
-            padding: 3em;
+            padding: 3em 1em;
         }
         .column{
             flex-direction: column;
@@ -213,7 +207,7 @@
             text-transform: uppercase;
         }
         .modal {
-            max-width: calc(100vw - 1rem);
+            width: calc(100vw - 6rem);
             position: fixed;
             top: 50%;
             left: 50%;
@@ -248,6 +242,15 @@
         }
         .modal-actions button.green:hover {
             background: #46a36e; 
+        }
+        @media (min-width: 1000px) {
+            .container{
+                width: 1000px;
+            }
+            .modal {
+                max-width: 70vw;
+                width: initial;
+            }
         }
     </style>
 </head>
