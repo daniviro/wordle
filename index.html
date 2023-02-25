@@ -72,7 +72,7 @@
             if (result === "OOOOO") {
                 showModal($('<span><h1><b class="green">Correct</b></h1></span>'), $(`<span>You made it, the word was <b class="green">${wordle.getWord()}</b><span>`))
             }
-            if (tries.length == 6 && wordle.checkWord(letters.join("").toLowerCase()) != "OOOOO") {
+            if (tries.length == 6 && result != "OOOOO") {
                 showModal($('<span><h1><b>Shame on you</b></h1></span>'), $(`<span>The word was <b>${wordle.getWord()}</b>, but don't worry, you can try again<span>`))
             }
         }
