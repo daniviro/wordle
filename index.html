@@ -40,6 +40,42 @@
             });
         }
 
+        function newLetter(letter) {
+            if (letters.length < 5) {
+                letters.push(letter.toUpperCase());
+            }
+        }
+        function erase() {
+            letters.pop();
+        }
+        function enter() {
+            if (letters.length < 5) return; //TODO: Animation feedback (the row wiggles)
+            tries.push(
+                {
+                    "letters": letters,
+                    "results": wordle.checkWord(letters.join("").toLowerCase()).split("")
+                }
+            );
+            var result = wordle.checkWord(letters.join("").toLowerCase());
+            result.split("").forEach((result, index) => {
+                if (result == "X" && keys[letters[index].toLowerCase()] == "-") {
+                    keys[letters[index].toLowerCase()] = result;
+                } else if (result == "W" && ["-", "X"].includes(keys[letters[index].toLowerCase()])) {
+                    keys[letters[index].toLowerCase()] = result;
+                } else if (result == "O") {
+                    keys[letters[index].toLowerCase()] = result;
+                }
+            });
+            drawKeys();
+            drawTries();
+            letters = [];
+            if (result === "OOOOO") {
+                showModal($('<span><h1><b class="green">Correct</b></h1></span>'), $(`<span>You made it, the word was <b class="green">${wordle.getWord()}</b><span>`))
+            }
+            if (tries.length == 6 && wordle.checkWord(letters.join("").toLowerCase()) != "OOOOO") {
+                showModal($('<span><h1><b>Shame on you</b></h1></span>'), $(`<span>The word was <b>${wordle.getWord()}</b>, but don't worry, you can try again<span>`))
+            }
+        }
         $(document).ready(() => {
             $('.keyboard .key[data-key]').click((e) => {
                 var key = $(e.currentTarget).data("key");
@@ -53,37 +89,6 @@
                 render();
             });
         });
-        function newLetter(letter) {
-            if (letters.length < 5) {
-                letters.push(letter.toUpperCase());
-            }
-        }
-        function erase() {
-            letters.pop();
-        }
-        function enter() {
-            tries.push(
-                {
-                    "letters": letters,
-                    "results": wordle.checkWord(letters.join("").toLowerCase()).split("")
-                }
-            );
-            wordle.checkWord(letters.join("").toLowerCase()).split("").forEach((result, index) => {
-                if (result == "X" && keys[letters[index].toLowerCase()] == "-") {
-                    keys[letters[index].toLowerCase()] = result;
-                } else if (result == "W" && ["-", "X"].includes(keys[letters[index].toLowerCase()])) {
-                    keys[letters[index].toLowerCase()] = result;
-                } else if (result == "O") {
-                    keys[letters[index].toLowerCase()] = result;
-                }
-            });
-            drawKeys();
-            drawTries();
-            letters = [];
-            if (tries.length == 6 && wordle.checkWord(letters.join("").toLowerCase()) != "OOOOO") {
-                alert(`La palabra secreta era: ${wordle.getWord()}`)
-            }
-        }
         $(document).keydown(event => {
             var charCode = event.keyCode;
             if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123)) {
@@ -96,22 +101,38 @@
                 enter();
             }
             render();
-        })
+        });
+        function showModal(title, body) {
+            $('.modal-title').html(title);
+            $('.modal-body').html(body);
+            $('.modal-backdrop').removeClass('d-none');
+        }
+        function hideModal() {
+            $('.modal-backdrop').addClass('d-none');
+        }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/b66328141f.js" crossorigin="anonymous"></script>
     <style>
+        html {
+            font-family: 'Open Sans', sans-serif;
+        }
+        body {
+            margin: 0;
+        }
         @media (min-width: 1000px) {
             .container{
                 width: 1000px;
+            }
+            .modal {
+                max-width: 70vw;
             }
         }
         .container{
             height: calc(100vh - 6em);
             margin: auto;
-            font-family: 'Open Sans', sans-serif;
             padding: 3em;
         }
         .column{
@@ -174,9 +195,75 @@
             gap: .5em;
             margin-top: 20px;
         }
+
+        .d-none {
+            display: none;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #00000055;
+        }
+        .modal-backdrop b.green {
+            color: #46a36e;
+        }
+        .modal-body b {
+            text-transform: uppercase;
+        }
+        .modal {
+            max-width: calc(100vw - 1rem);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+        .modal-title {
+            text-align: center;
+        }
+        .modal-actions {
+            display: flex;
+            margin-top: 2rem;
+            gap: 1rem;
+            justify-content: space-around;
+        }
+        .modal-actions button {
+            border: 0;
+            padding: 1rem;
+            border-radius: 1rem;
+            background: #d3d3d3;
+            text-transform: uppercase;
+        }
+        .modal-actions button:hover {
+            background: #a3a3a3;
+            cursor: pointer;
+        }
+        .modal-actions button.green {
+            background: #52BE80;
+            color: white;
+        }
+        .modal-actions button.green:hover {
+            background: #46a36e; 
+        }
     </style>
 </head>
 <body>
+    <div class="modal-backdrop d-none">
+        <div class="modal flex column">
+            <div class="modal-header">
+                <span class="modal-title"></span>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-actions flex">
+                <button class="green">Share <i class="fa fa-share-nodes"></i></button>
+                <button class="default" onclick="location.reload()">Restart <i class="fa fa-rotate-right"></i></button>
+            </div>
+        </div>
+    </div>
     <div class="flex column container">
         <div class="flex column tiles">
             <div class="flex">
