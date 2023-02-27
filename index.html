@@ -11,13 +11,20 @@
     <script src="dist/wordle.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script>
+        var encrypt = function(str) {
+            return encodeURIComponent(btoa(str));
+        }
+
+        var decrypt = function(str) {
+            return atob(decodeURIComponent(str));
+        }
         var keys = {"q": "-","w": "-","e": "-","r": "-","t": "-","y": "-","u": "-","i": "-","o": "-","p": "-","a": "-","s": "-","d": "-","f": "-","g": "-","h": "-","j": "-","k": "-","l": "-","ñ": "-","z": "-","x": "-","c": "-","v": "-","b": "-","n": "-","m": "-"};
         var letters = [];
         var tries = [];
 
         const urlParams = new URLSearchParams(window.location.search);
-        const word = urlParams.has('w') && atob(urlParams.get('w').replaceAll('"', ''));
-        const goalTries = urlParams.has('t') && atob(urlParams.get('t').replaceAll('"', '')).split(',').map(t => t.split(''));
+        const word = urlParams.has('w') && decrypt(urlParams.get('w').replaceAll('"', ''));
+        const goalTries = urlParams.has('t') && decrypt(urlParams.get('t').replaceAll('"', '')).split(',').map(t => t.split(''));
         var wordle = new Wordle(word);
 
         function drawTries() {
@@ -31,6 +38,7 @@
             });
         }
         function drawGoalTries() {
+            if (!goalTries) return;
             goalTries.forEach((element, index) => {
                 element.forEach((e, i) => {
                     const goalTry = $(`<div class="goal-try ${{"W":"warning","X":"fail","O":"success"}[e]}"></div>`)
@@ -126,10 +134,10 @@
         }
         function share() {
             const [parsedWord, parsedTries] = [
-                btoa(wordle.getWord()),
-                btoa(tries.map(t => t.results.join("")).join(","))
+                encrypt(wordle.getWord()),
+                encrypt(tries.map(t => t.results.join("")).join(","))
             ]
-            const params = `${window.location.href.split(/[?#]/)[0]}?w="${parsedWord}"&t="${parsedTries}"`;
+            const params = `${window.location.href.split(/[?#]/)[0]}?w=${parsedWord}&t=${parsedTries}`;
             var $temp = $("<input>");
             $("body").append($temp);
             $temp.val(params).select();
