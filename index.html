@@ -14,7 +14,11 @@
         var keys = {"q": "-","w": "-","e": "-","r": "-","t": "-","y": "-","u": "-","i": "-","o": "-","p": "-","a": "-","s": "-","d": "-","f": "-","g": "-","h": "-","j": "-","k": "-","l": "-","ñ": "-","z": "-","x": "-","c": "-","v": "-","b": "-","n": "-","m": "-"};
         var letters = [];
         var tries = [];
-        var wordle = new Wordle();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const word = urlParams.has('w') && atob(urlParams.get('w').replaceAll('"', ''));
+        const goalTries = urlParams.has('t') && atob(urlParams.get('t').replaceAll('"', '')).split(',').map(t => t.split(''));
+        var wordle = new Wordle(word);
 
         function drawTries() {
             tries.forEach((element, index) => {
@@ -23,6 +27,14 @@
                 element['letters'].forEach((letter, i) => {
                     $(`.tiles > .flex:nth-child(${index+1}) .tile:nth-child(${i+1})`).html(letter);
                     $(`.tiles > .flex:nth-child(${index+1}) .tile:nth-child(${i+1})`).addClass({"W":"warning","X":"fail","O":"success"}[element['results'][i]]);
+                });
+            });
+        }
+        function drawGoalTries() {
+            goalTries.forEach((element, index) => {
+                element.forEach((e, i) => {
+                    const goalTry = $(`<div class="goal-try ${{"W":"warning","X":"fail","O":"success"}[e]}"></div>`)
+                    $(`.tiles > .flex:nth-child(${index+1}) .tile:nth-child(${i+1})`).append(goalTry);
                 });
             });
         }
@@ -38,6 +50,7 @@
             letters.forEach((letter, index) => {
                 $(`.tiles > .flex:nth-child(${tries.length+1}) .tile:nth-child(${index+1})`).html(letter);
             });
+            drawGoalTries();
         }
 
         function newLetter(letter) {
@@ -88,6 +101,7 @@
                 }
                 render();
             });
+            drawGoalTries();
         });
         $(document).keydown(event => {
             var charCode = event.keyCode;
@@ -109,6 +123,19 @@
         }
         function hideModal() {
             $('.modal-backdrop').addClass('d-none');
+        }
+        function share() {
+            const [parsedWord, parsedTries] = [
+                btoa(wordle.getWord()),
+                btoa(tries.map(t => t.results.join("")).join(","))
+            ]
+            const params = `${window.location.href.split(/[?#]/)[0]}?w="${parsedWord}"&t="${parsedTries}"`;
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(params).select();
+            document.execCommand("copy");
+            $temp.remove();
+            $('.modal-footer').html('<span class="gray">Link copied!</span>');
         }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,6 +164,7 @@
         }
 
         .tile {
+            position: relative;
             width: 40px;
             background: gray;
             height: 40px;
@@ -169,14 +197,26 @@
         }
         .keyboard > .flex {
             justify-content: center;
-            gap: .5em;
+            gap: 1vw;
         }
+
+        .goal-try {
+            width: 100%;
+            position: absolute;
+            height: 0.3em;
+            background: gray;
+            bottom: -0.4em;
+            border-radius: 1em;
+        }
+        .goal-try.fail { background: gray; }
+        .goal-try.warning { background: #FFC300; }
+        .goal-try.success { background: #52BE80; }
 
         .key {
             justify-content: center;
             display: flex;
             flex: 1;
-            padding: .5em;
+            padding: 1vw;
             background: lightgray;
             color: black;
             font-size: 1em;
@@ -199,6 +239,7 @@
             width: 100%;
             height: 100%;
             background: #00000055;
+            z-index: 1;
         }
         .modal-backdrop b.green {
             color: #46a36e;
@@ -243,6 +284,30 @@
         .modal-actions button.green:hover {
             background: #46a36e; 
         }
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .modal-footer .gray {
+            color: #626262;
+        }
+        .header {
+            margin-top: -3em;
+            display: flex;
+            justify-content: center;
+            padding: 2em 0;
+        }
+        .header button.unstyled {
+            border: 0;
+            background: 0;
+            color: #46a36e;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 3em;
+            cursor: pointer;
+        }
         @media (min-width: 1000px) {
             .container{
                 width: 1000px;
@@ -250,6 +315,12 @@
             .modal {
                 max-width: 70vw;
                 width: initial;
+            }
+            .key {
+                padding: .5em;
+            }
+            .keyboard > .flex {
+                gap: .5em;
             }
         }
     </style>
@@ -262,12 +333,16 @@
             </div>
             <div class="modal-body"></div>
             <div class="modal-actions flex">
-                <button class="green">Share <i class="fa fa-share-nodes"></i></button>
-                <button class="default" onclick="location.reload()">Restart <i class="fa fa-rotate-right"></i></button>
+                <button id="share" class="green" onclick="share()">Share <i class="fa fa-share-nodes"></i></button>
+                <button id="reload" class="default" onclick="window.location.href=window.location.href.split(/[?#]/)[0]">Restart <i class="fa fa-rotate-right"></i></button>
             </div>
+            <div class="modal-footer"></div>
         </div>
     </div>
     <div class="flex column container">
+        <div class="header">
+            <button class="unstyled" onclick="window.location.href=window.location.href.split(/[?#]/)[0]">wordle</button>
+        </div>
         <div class="flex column tiles">
             <div class="flex">
                 <div class="tile"></div>

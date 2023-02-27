@@ -2,8 +2,8 @@ const words = ["nieve","hueso","titan","flujo","disco","razon","mural","abril","
 export class Wordle{
     private word: String = "";
     
-    constructor() {
-        this.word = words[Math.floor(Math.random()*words.length)];
+    constructor(word?: string) {
+        this.word = word || words[Math.floor(Math.random()*words.length)];
     }
 
     getWord(): String{
