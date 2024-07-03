@@ -1,7 +1,6 @@
 import * as readline from 'node:readline';
 import { exit, stdin as input, stdout as output } from 'node:process';
 import { Wordle } from './wordle';
-
 function main() {
     const wordle = new Wordle();
     const rt = readline.createInterface({ input, output });
