@@ -121,14 +121,25 @@
         });
         $(document).keydown(event => {
             var charCode = event.keyCode;
+            let key = null;
             if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123) || charCode === 192) {
                 newLetter(event.key.toUpperCase());
+                key = event.key.toLowerCase();
             }
             if (charCode == 8) {
                 erase()
+                key = "DELETE"
             }
             if (charCode == 13) {
                 enter();
+                key = "ENTER"
+            }
+            if (key) {
+                const keyEl = document.querySelector(`.key[data-key="${key}"]`)
+                keyEl.classList.add("active");
+                setTimeout(() => {
+                    keyEl.classList.remove("active")
+                }, 100)
             }
             render();
         });
@@ -239,6 +250,9 @@
             border-radius: 5px;
             text-transform: capitalize;
             align-items: center;
+        }
+        .key:active, .key.active {
+            background-color: #a3a3a3;
         }
 
         .flex.column.keyboard {
